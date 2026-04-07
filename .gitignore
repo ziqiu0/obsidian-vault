@@ -1,0 +1,9 @@
+# Obsidian vault gitignore
+.obsidian/
+.trash/
+*.log
+*.tmp
+*.bak
+node_modules/
+.DS_Store
+Thumbs.db
