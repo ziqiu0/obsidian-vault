@@ -5,7 +5,7 @@ $ErrorActionPreference = "Stop"
 
 # Configuration - update these values for your repository
 $githubUsername = "ziqiu0"
-$repositoryName = "biji_obsidian"
+$repositoryName = "obsidian-vault"
 $credentialsPath = "C:\Users\Administrator\.openclaw\workspace\CREDENTIALS.md"
 $vaultPath = "D:\biji_obsidian"
 
