@@ -1,0 +1,650 @@
+<Core_S7503X>dis cu
+#
+ version 7.1.070, Release 7755P01
+#
+ sysname Core_S7503X
+#
+ clock protocol none
+#
+ telnet server enable
+#
+ undo multicast forwarding-mode
+#
+ irf mac-address persistent always
+ irf auto-update enable
+ irf auto-merge enable
+ undo irf link-delay
+ irf member 1 priority 32
+ irf member 2 priority 20
+#
+ ip unreachables enable
+ ip ttl-expires enable
+#
+ dhcp enable
+ dhcp server forbidden-ip 192.168.1.1
+ dhcp server forbidden-ip 192.168.1.2
+ dhcp server forbidden-ip 192.168.1.3
+ dhcp server forbidden-ip 192.168.1.4
+ dhcp server forbidden-ip 192.168.1.5
+ dhcp server forbidden-ip 192.168.1.6
+ dhcp server forbidden-ip 192.168.1.7
+ dhcp server forbidden-ip 192.168.1.8
+ dhcp server forbidden-ip 192.168.1.9
+ dhcp server forbidden-ip 192.168.1.10
+ dhcp server forbidden-ip 192.168.1.11
+ dhcp server forbidden-ip 192.168.1.12
+ dhcp server forbidden-ip 192.168.1.13
+ dhcp server forbidden-ip 192.168.1.14
+ dhcp server forbidden-ip 192.168.1.15
+ dhcp server forbidden-ip 192.168.1.16
+ dhcp server forbidden-ip 192.168.1.17
+ dhcp server forbidden-ip 192.168.1.18
+ dhcp server forbidden-ip 192.168.1.19
+ dhcp server forbidden-ip 192.168.1.20
+ dhcp server forbidden-ip 192.168.1.100
+ dhcp server forbidden-ip 192.168.1.150 192.168.1.170
+ dhcp server forbidden-ip 192.168.1.222
+ dhcp server forbidden-ip 192.168.1.223
+ dhcp server forbidden-ip 192.168.2.1 192.168.2.254
+ dhcp server forbidden-ip 192.168.6.101 192.168.6.254
+ dhcp server forbidden-ip 192.168.7.2 192.168.7.61
+#
+ lldp global enable
+#
+ system-working-mode standard
+#
+vlan 1
+#
+vlan 10 to 12
+#
+vlan 200
+#
+vlan 4000
+#
+irf-port 1/2
+ port group interface Ten-GigabitEthernet1/2/0/40 mode enhanced
+#
+irf-port 2/1
+ port group interface Ten-GigabitEthernet2/2/0/40 mode enhanced
+#
+ stp instance 0 root primary
+ stp global enable
+#
+ftth
+ onu upstream-sla maximum-bandwidth percent 30
+#
+dhcp server ip-pool vlan11
+ gateway-list 192.168.1.1
+ network 192.168.1.0 mask 255.255.255.0
+ dns-list 192.168.200.1
+ network 192.168.5.0 mask 255.255.255.0 secondary
+  gateway-list 192.168.5.1
+ network 192.168.6.0 mask 255.255.255.0 secondary
+  gateway-list 192.168.6.1
+#
+dhcp server ip-pool vlan12
+ gateway-list 192.168.2.1
+ network 192.168.2.0 mask 255.255.255.0
+ dns-list 192.168.200.1
+ network 192.168.7.0 mask 255.255.255.0 secondary
+  gateway-list 192.168.7.1
+ network 192.168.8.0 mask 255.255.255.0 secondary
+  gateway-list 192.168.8.1
+#
+interface NULL0
+#
+interface Vlan-interface1
+#
+interface Vlan-interface10
+ description JK
+ ip address 192.168.10.1 255.255.255.0
+ ip address 192.168.11.1 255.255.255.0 sub
+#
+interface Vlan-interface11
+ description WW
+ ip address 192.168.1.1 255.255.255.0
+ ip address 192.168.5.1 255.255.255.0 sub
+ ip address 192.168.6.1 255.255.255.0 sub
+ packet-filter 3999 inbound
+#
+interface Vlan-interface12
+ description NW
+ ip address 192.168.2.1 255.255.255.0
+ ip address 192.168.7.1 255.255.255.0 sub
+ ip address 192.168.8.1 255.255.255.0 sub
+#
+interface Vlan-interface200
+ description GL
+ ip address 192.168.200.5 255.255.255.0
+#
+interface Vlan-interface4000
+ mad bfd enable
+ mad ip address 192.168.168.1 255.255.255.252 member 1
+ mad ip address 192.168.168.2 255.255.255.252 member 2
+#
+interface GigabitEthernet1/2/0/1
+ port link-mode bridge
+ port access vlan 4000
+ undo stp enable
+#
+interface GigabitEthernet1/2/0/2
+ port link-mode bridge
+ port access vlan 11
+#
+interface GigabitEthernet1/2/0/3
+ port link-mode bridge
+ port access vlan 12
+#
+interface GigabitEthernet1/2/0/4
+ port link-mode bridge
+#              
+interface GigabitEthernet1/2/0/5
+ port link-mode bridge
+#
+interface GigabitEthernet1/2/0/6
+ port link-mode bridge
+#
+interface GigabitEthernet1/2/0/7
+ port link-mode bridge
+#
+interface GigabitEthernet1/2/0/8
+ port link-mode bridge
+#
+interface GigabitEthernet1/2/0/9
+ port link-mode bridge
+#
+interface GigabitEthernet1/2/0/10
+ port link-mode bridge
+#
+interface GigabitEthernet1/2/0/11
+ port link-mode bridge
+#
+interface GigabitEthernet1/2/0/12
+ port link-mode bridge
+#
+interface GigabitEthernet1/2/0/13
+ port link-mode bridge
+#
+interface GigabitEthernet1/2/0/14
+ port link-mode bridge
+#
+interface GigabitEthernet1/2/0/15
+ port link-mode bridge
+#
+interface GigabitEthernet1/2/0/16
+ port link-mode bridge
+#
+interface GigabitEthernet1/2/0/17
+ port link-mode bridge
+#
+interface GigabitEthernet1/2/0/18
+ port link-mode bridge
+#
+interface GigabitEthernet1/2/0/19
+ port link-mode bridge
+#
+interface GigabitEthernet1/2/0/20
+ port link-mode bridge
+#
+interface GigabitEthernet1/2/0/21
+ port link-mode bridge
+#
+interface GigabitEthernet1/2/0/22
+ port link-mode bridge
+#
+interface GigabitEthernet1/2/0/23
+ port link-mode bridge
+ port link-type trunk
+ undo port trunk permit vlan 1
+ port trunk permit vlan 2 to 3999 4001 to 4094
+#
+interface GigabitEthernet1/2/0/24
+ port link-mode bridge
+ port access vlan 200
+#
+interface GigabitEthernet1/2/0/25
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#              
+interface GigabitEthernet1/2/0/26
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#
+interface GigabitEthernet1/2/0/27
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#
+interface GigabitEthernet1/2/0/28
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#
+interface GigabitEthernet1/2/0/29
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#
+interface GigabitEthernet1/2/0/30
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#
+interface GigabitEthernet1/2/0/31
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#
+interface GigabitEthernet1/2/0/32
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#
+interface GigabitEthernet1/2/0/33
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#
+interface GigabitEthernet1/2/0/34
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#
+interface GigabitEthernet1/2/0/35
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#
+interface GigabitEthernet1/2/0/36
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#
+interface GigabitEthernet1/2/0/41
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#
+interface GigabitEthernet1/2/0/42
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#
+interface GigabitEthernet1/2/0/43
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#
+interface GigabitEthernet1/2/0/44
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#
+interface GigabitEthernet1/2/0/45
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#
+interface GigabitEthernet1/2/0/46
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#
+interface GigabitEthernet1/2/0/47
+ port link-mode bridge
+ port link-type trunk
+ undo port trunk permit vlan 1
+ port trunk permit vlan 10 to 12 200
+#
+interface GigabitEthernet1/2/0/48
+ port link-mode bridge
+ port link-type trunk
+ undo port trunk permit vlan 1
+ port trunk permit vlan 10 to 12 200
+#
+interface GigabitEthernet2/2/0/1
+ port link-mode bridge
+ port access vlan 4000
+ undo stp enable
+#
+interface GigabitEthernet2/2/0/2
+ port link-mode bridge
+#
+interface GigabitEthernet2/2/0/3
+ port link-mode bridge
+#
+interface GigabitEthernet2/2/0/4
+ port link-mode bridge
+#
+interface GigabitEthernet2/2/0/5
+ port link-mode bridge
+#
+interface GigabitEthernet2/2/0/6
+ port link-mode bridge
+#
+interface GigabitEthernet2/2/0/7
+ port link-mode bridge
+#
+interface GigabitEthernet2/2/0/8
+ port link-mode bridge
+#
+interface GigabitEthernet2/2/0/9
+ port link-mode bridge
+#
+interface GigabitEthernet2/2/0/10
+ port link-mode bridge
+#
+interface GigabitEthernet2/2/0/11
+ port link-mode bridge
+#
+interface GigabitEthernet2/2/0/12
+ port link-mode bridge
+#
+interface GigabitEthernet2/2/0/13
+ port link-mode bridge
+#              
+interface GigabitEthernet2/2/0/14
+ port link-mode bridge
+#
+interface GigabitEthernet2/2/0/15
+ port link-mode bridge
+#
+interface GigabitEthernet2/2/0/16
+ port link-mode bridge
+#
+interface GigabitEthernet2/2/0/17
+ port link-mode bridge
+#
+interface GigabitEthernet2/2/0/18
+ port link-mode bridge
+#
+interface GigabitEthernet2/2/0/19
+ port link-mode bridge
+#
+interface GigabitEthernet2/2/0/20
+ port link-mode bridge
+#
+interface GigabitEthernet2/2/0/21
+ port link-mode bridge
+#
+interface GigabitEthernet2/2/0/22
+ port link-mode bridge
+#
+interface GigabitEthernet2/2/0/23
+ port link-mode bridge
+#
+interface GigabitEthernet2/2/0/24
+ port link-mode bridge
+#
+interface GigabitEthernet2/2/0/25
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#
+interface GigabitEthernet2/2/0/26
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#
+interface GigabitEthernet2/2/0/27
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#
+interface GigabitEthernet2/2/0/28
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#
+interface GigabitEthernet2/2/0/29
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#
+interface GigabitEthernet2/2/0/30
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#
+interface GigabitEthernet2/2/0/31
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#
+interface GigabitEthernet2/2/0/32
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#
+interface GigabitEthernet2/2/0/33
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#
+interface GigabitEthernet2/2/0/34
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#
+interface GigabitEthernet2/2/0/35
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#
+interface GigabitEthernet2/2/0/36
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#
+interface GigabitEthernet2/2/0/41
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#
+interface GigabitEthernet2/2/0/42
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#
+interface GigabitEthernet2/2/0/43
+ port link-mode bridge
+ port link-type trunk
+ undo port trunk permit vlan 1
+ port trunk permit vlan 2 to 3999 4001 to 4094
+#
+interface GigabitEthernet2/2/0/44
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#
+interface GigabitEthernet2/2/0/45
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#
+interface GigabitEthernet2/2/0/46
+ port link-mode bridge
+ port link-type trunk
+ undo port trunk permit vlan 1
+ port trunk permit vlan 2 to 3999 4001 to 4094
+#
+interface GigabitEthernet2/2/0/47
+ port link-mode bridge
+ port link-type trunk
+ port trunk permit vlan 1 to 3999 4001 to 4094
+#
+interface GigabitEthernet2/2/0/48
+ port link-mode bridge
+ port link-type trunk
+ undo port trunk permit vlan 1
+ port trunk permit vlan 10 to 12 200
+#
+interface M-GigabitEthernet1/0/0/0
+#              
+interface M-GigabitEthernet1/0/0/1
+#
+interface Ten-GigabitEthernet1/2/0/37
+ port link-mode bridge
+ port link-type trunk
+ undo port trunk permit vlan 1
+ port trunk permit vlan 2 to 3999 4001 to 4094
+#
+interface Ten-GigabitEthernet1/2/0/38
+ port link-mode bridge
+ port link-type trunk
+ undo port trunk permit vlan 1
+ port trunk permit vlan 2 to 3999 4001 to 4094
+#
+interface Ten-GigabitEthernet1/2/0/39
+ port link-mode bridge
+ port link-type trunk
+ undo port trunk permit vlan 1
+ port trunk permit vlan 10 to 12 200
+#
+interface Ten-GigabitEthernet2/2/0/37
+ port link-mode bridge
+ port link-type trunk
+ undo port trunk permit vlan 1
+ port trunk permit vlan 10 to 12 200
+#
+interface Ten-GigabitEthernet2/2/0/38
+ port link-mode bridge
+ port link-type trunk
+ undo port trunk permit vlan 1
+ port trunk permit vlan 10 to 12 200
+#
+interface Ten-GigabitEthernet2/2/0/39
+ port link-mode bridge
+ port link-type trunk
+ undo port trunk permit vlan 1
+ port trunk permit vlan 10 to 12 200
+#
+interface Ten-GigabitEthernet1/2/0/40
+#
+interface Ten-GigabitEthernet2/2/0/40
+#
+ scheduler logfile size 16
+#
+line class console
+ user-role network-admin
+#
+line class vty
+ user-role network-operator
+#
+line con 1/0 2/1
+ user-role network-admin
+#
+line vty 0 4
+ authentication-mode scheme
+ user-role level-15
+ user-role network-operator
+#
+line vty 5 63
+ user-role network-operator
+#
+ ip route-static 0.0.0.0 0 192.168.200.1
+ ip route-static 195.4.20.0 24 192.168.200.99
+ ip route-static 197.4.20.0 24 192.168.200.99
+ ip route-static 200.200.200.0 24 192.168.200.99
+#
+ ssh server enable
+#
+ arp ip-conflict log prompt
+ arp user-ip-conflict record enable
+#
+ ntp-service enable
+ ntp-service refclock-master 2
+#
+acl number 3001
+ rule 10 permit ip source 192.168.2.0 0.0.0.255 destination 192.168.0.0 0.0.255.255
+ rule 20 permit ip source 192.168.2.0 0.0.0.255 destination 172.0.0.0 0.255.255.255
+ rule 30 permit ip source 192.168.2.0 0.0.0.255 destination 10.0.0.0 0.255.255.255
+#
+acl number 3999
+ rule 5 permit ip source 192.168.1.134 0
+ rule 10 permit ip source 192.168.1.135 0
+ rule 15 permit ip source 192.168.1.153 0
+ rule 20 permit ip source 192.168.1.152 0
+ rule 100 deny ip destination 10.35.17.23 0
+ rule 200 permit ip
+#
+domain system
+#
+ domain default enable system
+#
+role name level-0
+ description Predefined level-0 role
+#
+role name level-1
+ description Predefined level-1 role
+#
+role name level-2
+ description Predefined level-2 role
+#
+role name level-3
+ description Predefined level-3 role
+#
+role name level-4
+ description Predefined level-4 role
+#
+role name level-5
+ description Predefined level-5 role
+#
+role name level-6
+ description Predefined level-6 role
+#
+role name level-7
+ description Predefined level-7 role
+#              
+role name level-8
+ description Predefined level-8 role
+#
+role name level-9
+ description Predefined level-9 role
+#
+role name level-10
+ description Predefined level-10 role
+#
+role name level-11
+ description Predefined level-11 role
+#
+role name level-12
+ description Predefined level-12 role
+#
+role name level-13
+ description Predefined level-13 role
+#
+role name level-14
+ description Predefined level-14 role
+#
+user-group system
+#              
+local-user admin class manage
+ password hash $h$6$UX6crZTQLxVF4PKX$zrAqR/I0WYZr2lSX5GGxExPIWU2ShWWWt1QVEkxDYfUKlkVzpsv1o+hLPG1apHCgxj9doEiITN+ixtlNsrm66A==
+ service-type telnet ssh
+ authorization-attribute user-role level-15
+ authorization-attribute user-role network-operator
+#
+ security-enhanced level 1
+#
+ undo ssl renegotiation disable
+ undo ssl version ssl3.0 disable
+ undo ssl version tls1.0 disable
+ undo ssl version tls1.1 disable
+#
+return
+<Core_S7503X>             sa
+The current configuration will be written to the device. Are you sure? [Y/N]:y
+Please input the file name(*.cfg)[flash:/startup.cfg]
+(To leave the existing filename unchanged, press the enter key):
+flash:/startup.cfg exists, overwrite? [Y/N]:y
+Validating file. Please wait...
+Saved the current configuration to mainboard device successfully.
+Chassis 1 Slot 1:
+Save next configuration file successfully.
+Chassis 2 Slot 0:
+Save next configuration file successfully.
+Chassis 2 Slot 1:
+Save next configuration file successfully.

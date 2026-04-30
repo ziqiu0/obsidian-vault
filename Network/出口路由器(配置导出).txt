@@ -1,0 +1,252 @@
+<LuYouQi>dis cu
+#
+ version 7.1.064, Release 6749P21
+#
+ sysname LuYouQi
+#
+ security-zone intra-zone default permit
+#
+ ip unreachables enable
+ ip ttl-expires enable
+#
+ dhcp enable
+#
+ dns proxy enable
+ dns server 202.103.224.68
+ dns server 202.103.225.68
+#
+ system-working-mode standard
+ password-recovery enable
+#
+vlan 1
+#
+vlan 755
+#
+traffic classifier TEST operator and
+ if-match acl 3001
+#
+traffic behavior TEST
+#
+policy-based-route TEST permit node 5
+ if-match acl 3001
+ apply next-hop 171.108.224.161
+#
+policy-based-route TEST permit node 10
+ apply next-hop 10.47.156.1
+#
+policy-based-route caiwu permit node 10
+ if-match acl 3110
+ apply next-hop 172.16.254.2
+#
+controller Cellular0/0
+#
+interface NULL0
+#
+interface GigabitEthernet0/0
+ port link-mode route
+ bandwidth 204800
+ combo enable copper
+ ip address 10.47.156.2 255.255.255.128
+ nat outbound 3010
+#
+interface GigabitEthernet0/1
+ port link-mode route
+ combo enable copper
+ ip address 172.16.254.1 255.255.255.252
+#
+interface GigabitEthernet0/2
+ port link-mode route
+ ip address 192.168.200.1 255.255.255.0
+ ip policy-based-route caiwu
+#
+interface GigabitEthernet0/3
+ port link-mode route
+ description xinnonghe
+ ip address 172.20.6.5 255.255.255.0
+ nat outbound 3010
+#
+interface GigabitEthernet0/4
+ port link-mode route
+ description mingzheng
+ ip address 172.16.102.2 255.255.255.0
+ nat outbound 3010
+#
+interface GigabitEthernet0/5
+ port link-mode route
+ ip address 10.255.255.1 255.255.255.0
+#
+interface GigabitEthernet0/6
+ port link-mode route
+#
+interface GigabitEthernet0/7
+ port link-mode route
+#
+interface GigabitEthernet0/8
+ port link-mode route
+#
+interface GigabitEthernet0/9
+ port link-mode route
+#
+interface Ten-GigabitEthernet0/10
+ port link-mode route
+#
+interface Ten-GigabitEthernet0/11
+ port link-mode route
+#
+interface Ten-GigabitEthernet0/12
+ port link-mode route
+#
+interface Ten-GigabitEthernet0/13
+ port link-mode route
+#
+interface Ten-GigabitEthernet0/14
+ port link-mode route
+#
+interface Ten-GigabitEthernet0/15
+ port link-mode route
+#
+ scheduler logfile size 16
+#
+line class console
+ user-role network-admin
+#
+line class tty
+ user-role network-operator
+#
+line class vty
+ user-role network-operator
+#
+line con 0
+ user-role network-admin
+#
+line vty 0 63
+ authentication-mode scheme
+ user-role network-operator
+#
+ ip route-static 0.0.0.0 0 10.47.156.1
+ ip route-static 0.0.0.0 0 172.16.254.2 preference 80
+ ip route-static 10.18.1.10 32 172.16.102.1
+ ip route-static 10.18.1.17 32 172.16.102.1
+ ip route-static 10.18.1.18 32 172.16.102.1
+ ip route-static 10.18.1.30 32 172.16.102.1
+ ip route-static 172.20.0.0 16 172.20.6.1
+ ip route-static 192.168.1.0 24 192.168.200.5
+ ip route-static 192.168.2.0 24 192.168.200.5
+ ip route-static 192.168.3.0 24 192.168.200.5
+ ip route-static 192.168.4.0 24 192.168.200.5
+ ip route-static 192.168.5.0 24 192.168.200.5
+ ip route-static 192.168.6.0 24 192.168.200.5
+ ip route-static 192.168.7.0 24 192.168.200.5
+ ip route-static 192.168.8.0 24 192.168.200.5
+ ip route-static 192.168.10.0 24 192.168.200.5
+#
+performance-management
+#
+ ssh server enable
+#
+acl number 3001
+ rule 5 permit ip source 192.168.1.250 0
+#
+acl number 3010
+ rule 0 permit ip source 192.168.1.0 0.0.0.255
+ rule 5 permit ip source 192.168.2.240 0
+ rule 10 permit ip source 172.16.255.0 0.0.0.255
+ rule 15 permit ip source 192.168.3.0 0.0.0.255
+ rule 20 permit ip source 192.168.4.0 0.0.0.255
+ rule 25 permit ip source 192.168.5.0 0.0.0.255
+ rule 30 permit ip source 192.168.6.0 0.0.0.255
+#
+acl number 3110
+ rule 5 permit ip source 192.168.1.134 0
+ rule 10 permit ip source 192.168.1.135 0
+ rule 15 permit ip source 192.168.1.153 0
+ rule 20 permit ip source 192.168.1.152 0
+#
+ password-control enable 
+ undo password-control aging enable 
+ undo password-control history enable 
+ password-control length 6
+ password-control login-attempt 3 exceed lock-time 10
+ password-control update-interval 0
+ password-control login idle-time 0
+#
+domain system
+#
+ domain default enable system
+#
+role name level-0
+ description Predefined level-0 role
+#
+role name level-1
+ description Predefined level-1 role
+#
+role name level-2
+ description Predefined level-2 role
+#
+role name level-3
+ description Predefined level-3 role
+#
+role name level-4
+ description Predefined level-4 role
+#
+role name level-5
+ description Predefined level-5 role
+#
+role name level-6
+ description Predefined level-6 role
+#
+role name level-7
+ description Predefined level-7 role
+#
+role name level-8
+ description Predefined level-8 role
+#
+role name level-9
+ description Predefined level-9 role
+#
+role name level-10
+ description Predefined level-10 role
+#              
+role name level-11
+ description Predefined level-11 role
+#
+role name level-12
+ description Predefined level-12 role
+#
+role name level-13
+ description Predefined level-13 role
+#
+role name level-14
+ description Predefined level-14 role
+#
+user-group system
+#
+local-user admin class manage
+ service-type ssh telnet http
+ authorization-attribute user-role network-admin
+#
+local-user h3c class manage
+ service-type ssh telnet
+ authorization-attribute user-role level-15
+ authorization-attribute user-role network-operator
+#              
+ security-enhanced level 2
+#
+ ssl version gm-tls1.1 disable
+ ssl renegotiation disable
+ ssl version ssl3.0 disable
+ ssl version tls1.0 disable
+ undo ssl version tls1.1 disable
+ undo ssl version tls1.2 disable
+ undo ssl version tls1.3 disable
+#
+ ip http enable
+#
+return
+<LuYouQi>     sa
+The current configuration will be written to the device. Are you sure? [Y/N]:y
+Please input the file name(*.cfg)[flash:/startup.cfg]
+(To leave the existing filename unchanged, press the enter key):
+flash:/startup.cfg exists, overwrite? [Y/N]:y
+Validating file. Please wait...
+Configuration is saved to device successfully.

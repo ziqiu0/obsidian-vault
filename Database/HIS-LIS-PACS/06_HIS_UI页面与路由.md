@@ -34,6 +34,7 @@ tags: #HIS, #前端, #Vue3, #路由, #UI
 
 | 路由分组 | 路径 | 页面名称 | 组件 | 权限标识 |
 |----------|------|----------|------|----------|
+| **病历管理** | `emr/documents` | 电子病历 | `emr/EmrManagement.vue` | — |
 | **首页** | `/dashboard` | 仪表盘 | `Dashboard.vue` | — |
 | **门诊业务** | `his/patient` | 患者管理 | `his/PatientManagement.vue` | `his:patient:view` |
 | | `his/doctor` | 医生排班 | `his/DoctorManagement.vue` | `his:doctor:view` |
@@ -73,6 +74,26 @@ tags: #HIS, #前端, #Vue3, #路由, #UI
 | 仪表盘 | `Dashboard.vue` | 系统概览、数据统计、快捷入口 |
 | 登录 | `Login.vue` | JWT 认证登录 |
 | 主布局 | `MainLayout.vue` | 顶部导航 + 侧边栏 + 内容区 |
+
+### 📋 电子病历（1 页）
+
+| 页面 | 文件 | 组件依赖 | API 文件 | 后端 |
+|:----:|------|----------|----------|:----:|
+| 病历管理 | `emr/EmrManagement.vue` | WangEditor.vue | `api/emr.js` | ✅ |
+
+**EmrManagement.vue 功能清单:**
+- 病历列表（分页搜索：患者ID/病历类型/状态）
+- 新建病历（ElMessageBox 输入患者ID）
+- 编辑模式（DRAFT状态）→ WangEditor 富文本编辑 + 模板选择
+- 查看模式（非DRAFT）→ WangEditor 只读渲染
+- 提交审签（三级质控）
+- 审核操作（通过/退回）
+- 归档
+
+**WangEditor.vue 组件属性:**
+- `v-model` / `height` / `placeholder` / `readonly`
+- 工具栏排除项：视频/表格/代码块/引用/标题/全屏/图片/表情/链接/Todo
+- CSS 强制左对齐
 
 ### 🏥 HIS 门诊业务（3 页）
 
@@ -151,6 +172,7 @@ tags: #HIS, #前端, #Vue3, #路由, #UI
 | `api/inpatient.js` | 住院 | 住院登记 CRUD |
 | `api/pacs.js` | 影像 | 影像检查 CRUD |
 | `api/lis.js` | 检验 | 检验相关(后端待实现) |
+| `api/emr.js` | **电子病历** | 创建/查询/保存/提交审签/审核/归档 + 模板 |
 | `api/system.js` | 系统 | 用户/角色/权限/字典/参数/审计 |
 | `utils/request.js` | 工具 | Axios 封装 + token 拦截器 |
 | `store/user.js` | 状态 | 用户登录状态 + 权限管理 |

@@ -293,5 +293,115 @@ flowchart TB
 
 ---
 
+## 八、EMR 电子病历数据流
+
+### 8.1 病历编辑保存数据流
+
+```mermaid
+sequenceDiagram
+    participant U as 前端 EmrManagement.vue
+    participant EC as EmrDocumentController
+    participant ES as EmrDocumentService
+    participant ER as EmrDocumentRepository
+    participant DB as PostgreSQL
+
+    U->>EC: PUT /api/emr/documents/{id}<br>{content: "HTML..."}
+    EC->>ES: updateContent(id, content)
+    ES->>ER: findById(id)
+    ER-->>ES: EmrDocument
+    ES->>ES: 校验 status == DRAFT
+    alt status != DRAFT
+        ES-->>EC: 抛RuntimeException
+        EC-->>U: 500 + "不允许修改"
+    else status == DRAFT
+        ES->>ES: doc.setContent(content)
+        ES->>ER: save(doc)
+        ER-->>ES: EmdDocument (updated)
+        ES-->>EC: 返回更新后文档
+        EC-->>U: 200 + Result.success(doc)
+    end
+```
+
+### 8.2 模板加载数据流
+
+```mermaid
+sequenceDiagram
+    participant U as 前端
+    participant TC as EmrTemplateController
+    participant TS as EmrDocumentService
+    participant TR as EmrTemplateRepository
+    participant DB as PostgreSQL
+
+    U->>TC: GET /api/emr/templates?docType=OUTPATIENT_RECORD
+    TC->>TS: getTemplates(docType, deptId)
+    TS->>TR: findAvailableTemplates(docType, deptId)
+    Note over TR: WHERE docType=:docType<br>AND (departmentId=:deptId OR isPublic=true)
+    TR->>DB: SELECT ...
+    DB-->>TR: [EmrTemplate]
+    TR-->>TS: 模板列表
+    TS-->>TC: 模板列表
+    TC-->>U: 200 + 模板数据
+    U->>U: 缓存模板内容到 templateContentCache
+    U->>U: 匹配 docType → 选中对应模板
+    Note over U: 仅内容为空时自动应用模板HTML
+```
+
+### 8.3 病历查看数据流（只读）
+
+```mermaid
+sequenceDiagram
+    participant U as 前端
+    participant EC as EmrDocumentController
+    participant ES as EmrDocumentService
+    participant ER as EmrDocumentRepository
+
+    U->>EC: GET /api/emr/documents/{id}
+    EC->>ES: getById(id)
+    ES->>ER: findById(id)
+    ER-->>ES: EmrDocument
+    ES-->>EC: 完整病历数据
+    EC-->>U: 200 + content (HTML)
+    U->>U: WangEditor.disable() + 隐藏保存按钮
+    Note over U: 编辑器只读渲染，不可编辑
+```
+
+### 8.4 EMR 相关表之间的数据关系
+
+```mermaid
+erDiagram
+    EMR_DOCUMENT ||--o{ EMR_AUDIT_TRAIL : "1:N 审签流水"
+    EMR_DOCUMENT }o--|| EMR_TEMPLATE : "N:1 引用模板类型"
+    REGISTRATION ||--o{ EMR_DOCUMENT : "1:N（门诊病历）"
+    INPATIENT_ADMISSIONS ||--o{ EMR_DOCUMENT : "1:N（住院病历）"
+
+    EMR_DOCUMENT {
+        bigint id PK
+        string document_no "病历编号"
+        bigint patient_id "患者ID"
+        string doc_type "OUTPATIENT_RECORD / ADMISSION_RECORD / PROGRESS_NOTE"
+        text content "HTML 内容"
+        string status "DRAFT / PENDING_L1/2/3 / APPROVED / ARCHIVED"
+        int version "版本号"
+    }
+
+    EMR_AUDIT_TRAIL {
+        bigint id PK
+        bigint document_id FK
+        int review_level "1/2/3"
+        string action "SUBMIT / PASS / REJECT"
+        text comment "审核意见"
+    }
+
+    EMR_TEMPLATE {
+        bigint id PK
+        string name "模板名称"
+        string doc_type "适用病历类型"
+        text content_template "HTML 模板内容"
+        bigint department_id "科室（null=全院）"
+    }
+```
+
+---
+
 *相关文档: [[05_HIS_实际数据库表]] [[06_HIS_UI页面与路由]] [[07_HIS_业务流程]] [[00_HIS_LIS_PACS_数据库ER图]]*
 *标签: #HIS #数据流程 #数据流转 #Mermaid*

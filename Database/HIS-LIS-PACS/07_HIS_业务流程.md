@@ -264,6 +264,7 @@ flowchart LR
 | 医生管理 | DoctorManagement | his_doctor | his.js |
 | 住院登记 | AdmissionManagement | inpatient_admissions | inpatient.js |
 | 影像管理 | ImageManagement | pacs_image_study | pacs.js |
+| **电子病历** | **EmrManagement** | **emr_document + emr_audit_trail + emr_template** | **emr.js** |
 | 科室管理 | DepartmentManagement | departments | base.js |
 | 病房管理 | WardManagement | wards | base.js |
 | 床位管理 | BedManagement | beds | base.js |
@@ -273,6 +274,88 @@ flowchart LR
 | 权限管理 | PermissionManagement | permissions | system.js |
 | 审计日志 | AuditLogManagement | audit_log | system.js |
 | 系统参数 | ParameterManagement | system_config | system.js |
+
+---
+
+## 八、电子病历流程 (EMR)
+
+### 病历状态机
+
+```mermaid
+stateDiagram-v2
+    [*] --> DRAFT: 新建病历
+    DRAFT --> PENDING_L1: 提交一级审签
+    PENDING_L1 --> PENDING_L2: 通过
+    PENDING_L1 --> DRAFT: 退回
+    PENDING_L2 --> PENDING_L3: 通过
+    PENDING_L2 --> DRAFT: 退回
+    PENDING_L3 --> APPROVED: 通过
+    PENDING_L3 --> DRAFT: 退回
+    APPROVED --> ARCHIVED: 归档
+    APPROVED --> [*]
+    ARCHIVED --> [*]
+```
+
+### 编辑流程
+
+```mermaid
+flowchart TD
+    A[病历列表] --> B{状态?}
+    B -->|DRAFT| C[点击编辑]
+    B -->|非DRAFT| D[点击查看]
+    
+    C --> E[加载病历内容]
+    E --> F[加载模板<br>按docType过滤]
+    F --> G{内容为空?}
+    G -->|是| H[自动应用模板]
+    G -->|否| I[保留已有内容]
+    H --> J[WangEditor可编辑]
+    I --> J
+    J --> K[用户编辑]
+    K --> L[点击保存]
+    L --> M{PUT 保存}
+    M -->|后端校验通过| N[保存成功]
+    M -->|status非DRAFT| O[报错提示]
+    O --> J
+
+    D --> P[加载病历内容]
+    P --> Q[WangEditor只读渲染]
+    Q --> R[关闭查看]
+
+    style C fill:#165DFF,color:#fff
+    style D fill:#FF7D00,color:#fff
+    style N fill:#00B42A,color:#fff
+```
+
+### 模板自动匹配规则
+
+- 门诊病历 (OUTPATIENT_RECORD) → 门诊病历模板
+- 入院记录 (ADMISSION_RECORD) → 入院记录模板  
+- 病程记录 (PROGRESS_NOTE) → 日常病程记录模板
+- 仅当日志内容为空（新建/未编辑）时自动应用模板内容
+- 已有内容的病历只选中模板但不覆盖
+
+### 审签流程
+
+```mermaid
+flowchart LR
+    A[医生提交] --> B[一级审签<br>自查]
+    B -->|通过| C[二级审签<br>主治审核]
+    B -->|退回| A
+    C -->|通过| D[三级审签<br>质控终审]
+    C -->|退回| A
+    D -->|通过| E[已通过]
+    D -->|退回| A
+    E -->|归档| F[已归档]
+```
+
+### 实现文件
+
+- 前端: `frontend/src/views/emr/EmrManagement.vue` + `frontend/src/components/WangEditor.vue`
+- API: `frontend/src/api/emr.js`
+- 后端: `EmrDocumentController` → `EmrDocumentServiceImpl` → `EmrDocument` Entity
+- 模板: `EmrTemplateController` → `EmrTemplateRepository.findAvailableTemplates()`
+- 测试: `EmrDocumentServiceTest.java`（8个用例）
 
 ---
 

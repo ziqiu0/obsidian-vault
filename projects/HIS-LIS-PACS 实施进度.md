@@ -40,22 +40,39 @@ path: ~/projects/his-lis-pacs/
 | 床位管理 | ✅ | ✅ | 基础数据 |
 | 住院登记 | ✅ | ✅ | |
 | 数据字典 | ✅ | ✅ | |
-|| 影像管理 | ✅ | ✅ | ImageStudy |
-|| 电子病历 | ✅ | ✅ | 三级质控 + 模板 + 归档 |
+| 影像管理 | ✅ | ✅ | ImageStudy |
+|| **电子病历(EMR)** | ✅ | ✅ | 三级质控 + 模板 + 归档 |
+|| **药房管理** | ✅ | ✅ | 药品目录+采购入库+批次库存+变动记录 |
+|| **LIS 检验系统** | ✅ | ✅ | 检验项目+申请+样本+结果+报告 |
+|| **处方模块** | ✅ | ✅ | 处方创建+明细+状态流转 |
 
 ### ⏳ 待完成
 
 | 模块 | 前端 | 后端 | 备注 |
 |------|:----:|:----:|------|
-| 检验工作列表 | ✅ | ❌ | LIS |
-| 样本管理 | ✅ | ❌ | LIS |
-| 检验项目 | ✅ | ❌ | LIS |
-| 检验报告 | ✅ | ❌ | LIS |
 | 收费管理 | ✅ | ❌ | |
 | 系统设置 | ✅ | ❌ | |
 | 审计日志 | ✅ | ❌ | |
 | 参数配置 | ✅ | ❌ | |
 | 影像诊断 | ✅ | ❌ | PACS |
+
+## EMR 电子病历模块详情（2026-04-29 更新）
+
+### 前端改动
+- **WangEditor 升级**: content 存储为 HTML，支持字体/大小/加粗/段落/列表
+- **CSS 强制左对齐**: 编辑器内所有元素 text-align: left !important
+- **模板自动匹配**: 门诊→门诊模板，住院→入院模板，仅空文档自动应用
+- **编辑/查看分离**: DRAFT→编辑(可编辑+可保存)，非DRAFT→查看(只读渲染)
+- **错误提示改进**: 显示后端真实错误消息替代通用"保存失败"
+- **只读模式**: WangEditor 新增 readonly prop，调用 editor.disable()
+
+### 后端改动
+- **保存校验**: PUT /api/emr/documents/{id} 校验 status==DRAFT，否则抛异常
+- **模板过滤**: GET /api/emr/templates?docType= 按病历类型过滤
+
+### 自动化测试
+- **8 个测试用例**: 正常保存、长文本、非草稿禁止编辑、不存在的ID、空内容、空白HTML、多次覆盖、退回后重编辑
+- 使用 H2 内存库，MODE=PostgreSQL 兼容
 
 ## 预设角色
 
@@ -69,19 +86,23 @@ path: ~/projects/his-lis-pacs/
 
 ## 相关对话
 
+- [[conversations/2026-04-29/13-33_HIS-EMR开发|2026-04-29 HIS EMR + 排班 + 用户医生打通]]
 - [[conversations/2026-04-28/17-30_HIS-RBAC-开发|2026-04-28 HIS 患者+挂号+RBAC]]
 - [[conversations/2026-04-23/ 系列对话]]
 - [[conversations/2026-04-22/ 系列对话]]
 
 ## 数据库表清单
 
-基于 JPA Entity 的实际数据库表（15 个 Entity → 17 张表）
+基于 JPA Entity 的实际数据库表（16 个 Entity → 20 张表）
 
 | 分类 | 表 | Entity | 状态 |
 |------|-----|--------|:----:|
 | 门诊 | patient | Patient | ✅ |
 | 门诊 | registration | Registration | ✅ |
 | 门诊 | his_doctor | Doctor | ✅ |
+| 门诊 | **emr_document** | **EmrDocument** | ✅ |
+| 门诊 | **emr_audit_trail** | **EmrAuditTrail** | ✅ |
+| 门诊 | **emr_template** | **EmrTemplate** | ✅ |
 | 影像 | pacs_image_study | ImageStudy | ✅ |
 | 住院 | inpatient_admissions | Admission | ✅ |
 | 基础 | departments | Department | ✅ |
@@ -98,10 +119,11 @@ path: ~/projects/his-lis-pacs/
 
 ## UI 页面清单
 
-33 个 Vue 组件，27 个路由页面，8 个 API 模块
+33 个 Vue 组件，28 个路由页面，9 个 API 模块
 
 | 模块 | 页面数 | 路由 | 后端 |
 |------|:------:|:----:|:----:|
+| EMR 电子病历 | 1 | ✅ | ✅ |
 | HIS 门诊 | 3 | ✅ | ✅ |
 | 收费管理 | 5 | ✅ | ❌ |
 | LIS 检验 | 4 | ✅ | ❌ |
@@ -123,15 +145,18 @@ flowchart TD
     D --> F[影像 PACS]
     D --> G[收费]
     D --> H[住院]
-    E --> I[报告]
-    F --> I
+    D --> I[电子病历]
+    E --> J[报告]
+    F --> J
+    J --> C
+    G --> K[完成]
+    H --> L[住院管理]
     I --> C
-    G --> J[完成]
-    H --> K[住院管理]
 
     style A fill:#165DFF,color:#fff
-    style J fill:#00B42A,color:#fff
-    style K fill:#FF7D00,color:#fff
+    style K fill:#00B42A,color:#fff
+    style L fill:#FF7D00,color:#fff
+    style I fill:#722ED1,color:#fff
 ```
 
 详见 [[07_HIS_业务流程]] [[08_HIS_数据流程]]
@@ -151,6 +176,7 @@ graph TB
         RBAC2[[RBAC 权限系统]]
         HIE[[Hospital Integration Engine]]
         UIDESIGN[[his-lis-pacs-ui]]
+        EMR[[09_EMR_电子病历设计]]
     end
 
     subgraph 项目代码
@@ -173,10 +199,15 @@ graph TB
     FE --> BE
     IP --> RBAC2
     IP --> HIE
+    IP --> EMR
+    EMR --> BF
+    EMR --> DF
+    EMR --> TB2
 
     style P fill:#165DFF,color:#fff
     style IP fill:#00B42A,color:#fff
     style ER fill:#FF7D00,color:#fff
+    style EMR fill:#722ED1,color:#fff
 ```
 
 ## 关联
