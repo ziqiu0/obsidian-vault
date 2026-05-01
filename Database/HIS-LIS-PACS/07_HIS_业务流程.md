@@ -147,7 +147,10 @@ flowchart TD
 | 检验项目 | 检验项目/套餐字典管理 |
 | 检验报告 | 报告查看、审核、打印 |
 
-> ⚠️ 后端 Service/Controller 待实现
+**后端已实现（2026-04-30）:**
+- Entity: LisTestItem / LisTestRequest / LisTestRequestItem / LisSample / LisTestResult / LisReport
+- Controller: TestItemController / TestRequestController / SampleController / (5 Controllers 总计)
+- API: `api/lis.js`（全部4页对接完毕）
 
 ---
 
@@ -255,16 +258,224 @@ flowchart LR
 
 ---
 
-## 七、业务模块与页面/表的对应关系
+## 八、电子病历流程 (EMR)
+
+### 病历状态机
+
+```mermaid
+stateDiagram-v2
+    [*] --> DRAFT: 新建病历
+    DRAFT --> PENDING_L1: 提交一级审签
+    PENDING_L1 --> PENDING_L2: 通过
+    PENDING_L1 --> DRAFT: 退回
+    PENDING_L2 --> PENDING_L3: 通过
+    PENDING_L2 --> DRAFT: 退回
+    PENDING_L3 --> APPROVED: 通过
+    PENDING_L3 --> DRAFT: 退回
+    APPROVED --> ARCHIVED: 归档
+    APPROVED --> [*]
+    ARCHIVED --> [*]
+```
+
+### 编辑流程
+
+```mermaid
+flowchart TD
+    A[病历列表] --> B{状态?}
+    B -->|DRAFT| C[点击编辑]
+    B -->|非DRAFT| D[点击查看]
+    
+    C --> E[加载病历内容]
+    E --> F[加载模板<br>按docType过滤]
+    F --> G{内容为空?}
+    G -->|是| H[自动应用模板]
+    G -->|否| I[保留已有内容]
+    H --> J[WangEditor可编辑]
+    I --> J
+    J --> K[用户编辑]
+    K --> L[点击保存]
+    L --> M{PUT 保存}
+    M -->|后端校验通过| N[保存成功]
+    M -->|status非DRAFT| O[报错提示]
+    O --> J
+
+    D --> P[加载病历内容]
+    P --> Q[WangEditor只读渲染]
+    Q --> R[关闭查看]
+
+    style C fill:#165DFF,color:#fff
+    style D fill:#FF7D00,color:#fff
+    style N fill:#00B42A,color:#fff
+```
+
+### 模板自动匹配规则
+
+- 门诊病历 (OUTPATIENT_RECORD) → 门诊病历模板
+- 入院记录 (ADMISSION_RECORD) → 入院记录模板  
+- 病程记录 (PROGRESS_NOTE) → 日常病程记录模板
+- 仅当日志内容为空（新建/未编辑）时自动应用模板内容
+- 已有内容的病历只选中模板但不覆盖
+
+### 审签流程
+
+```mermaid
+flowchart LR
+    A[医生提交] --> B[一级审签<br>自查]
+    B -->|通过| C[二级审签<br>主治审核]
+    B -->|退回| A
+    C -->|通过| D[三级审签<br>质控终审]
+    C -->|退回| A
+    D -->|通过| E[已通过]
+    D -->|退回| A
+    E -->|归档| F[已归档]
+```
+
+### 实现文件
+
+- 前端: `frontend/src/views/emr/EmrManagement.vue` + `frontend/src/components/WangEditor.vue`
+- API: `frontend/src/api/emr.js`
+- 后端: `EmrDocumentController` → `EmrDocumentServiceImpl` → `EmrDocument` Entity
+- 模板: `EmrTemplateController` → `EmrTemplateRepository.findAvailableTemplates()`
+- 测试: `EmrDocumentServiceTest.java`（8个用例）
+
+---
+
+## 九、药房管理流程
+
+### 药品采购入库流程
+
+```mermaid
+flowchart TD
+    A[新建采购订单] --> B[DRAFT]
+    B --> C[提交审批]
+    C --> D{PENDING_APPROVAL}
+    D -->|通过| E[APPROVED]
+    D -->|退回| B
+    E --> F[执行入库]
+    F --> G[创建批次记录]
+    G --> H[增加库存]
+    H --> I[创建库存变动记录]
+    I --> J[COMPLETED]
+
+    style A fill:#165DFF,color:#fff
+    style J fill:#00B42A,color:#fff
+```
+
+### 发药流程（FIFO）
+
+```mermaid
+flowchart TD
+    A[医生开处方] --> B[处方待发药]
+    B --> C[药房调取处方]
+    C --> D[查询库存批次]
+    D --> E[按有效期FIFO选择]
+    E --> F{库存充足?}
+    F -->|是| G[扣减批次库存]
+    F -->|否| H[提示缺药]
+    H --> D
+    G --> I[创建发药记录]
+    I --> J[处方状态→DISPENSED]
+
+    style A fill:#165DFF,color:#fff
+    style J fill:#00B42A,color:#fff
+```
+
+### 采购单状态机
+
+```mermaid
+stateDiagram-v2
+    [*] --> DRAFT: 新建
+    DRAFT --> PENDING_APPROVAL: 提审
+    PENDING_APPROVAL --> APPROVED: 审核通过
+    PENDING_APPROVAL --> DRAFT: 退回
+    APPROVED --> COMPLETED: 入库完成
+    APPROVED --> CANCELLED: 取消
+    PENDING_APPROVAL --> CANCELLED: 取消
+    DRAFT --> CANCELLED: 取消
+    COMPLETED --> [*]
+    CANCELLED --> [*]
+```
+
+### 实现文件
+
+- 前端: `pharmacy/DrugCatalog.vue` + `PurchaseOrder.vue`
+- API: `api/pharmacy/index.js`
+- 后端: 6个Controller
+
+---
+
+## 十、处方管理流程
+
+### 处方创建流程
+
+```mermaid
+flowchart TD
+    A[医生选患者] --> B[点击开处方]
+    B --> C[搜索添加药品]
+    C --> D[填写用量/频次/天数]
+    D --> E[保存草稿]
+    E --> F[DRAFT]
+    F --> G[PAID 待缴费]
+    G --> H[DISPENSED 已发药]
+
+    style A fill:#165DFF,color:#fff
+    style H fill:#00B42A,color:#fff
+```
+
+### 处方状态机
+
+```mermaid
+stateDiagram-v2
+    [*] --> DRAFT: 新建
+    DRAFT --> PAID: 收费
+    DRAFT --> CANCELLED: 取消
+    PAID --> DISPENSED: 发药
+    PAID --> CANCELLED: 退费
+    DISPENSED --> [*]
+    CANCELLED --> [*]
+```
+
+---
+
+## 十一、医生诊间工作站
+
+### 患者就诊流程
+
+```mermaid
+flowchart TD
+    A[候诊列表] --> B[开始就诊]
+    B -->|REGISTERED→VISITED| C[诊疗操作]
+    C --> D[病历]
+    C --> E[处方]
+    C --> F[检验申请]
+    D --> C
+    E --> C
+    F --> C
+
+    style A fill:#165DFF,color:#fff
+    style C fill:#00B42A,color:#fff
+```
+
+### 实现文件
+
+- 前端: `doctor/MyPatients.vue` + `DoctorWorkstation.vue`
+- API: `api/doctor.js`
+
+---
+
+## 业务模块与页面/表的对应关系（完整版）
 
 | 业务模块 | 页面 | 数据库表 | API文件 |
 |----------|------|----------|---------|
 | 患者管理 | PatientManagement | patient | patient.js |
 | 挂号管理 | RegistrationManagement | registration | registration.js |
 | 医生管理 | DoctorManagement | his_doctor | his.js |
+| 医生排班 | ScheduleManagement | — | schedule.js |
+| **药房** | DrugCatalog / PurchaseOrder | drug_catalog, stock_batch, purchase_order 等6张 | pharmacy/index.js |
+| **处方** | MyPatients (弹窗) | prescription / prescription_item | doctor.js |
 | 住院登记 | AdmissionManagement | inpatient_admissions | inpatient.js |
 | 影像管理 | ImageManagement | pacs_image_study | pacs.js |
-| **电子病历** | **EmrManagement** | **emr_document + emr_audit_trail + emr_template** | **emr.js** |
+| **电子病历** | **EmrManagement** | **emr_document, audit_trail, template** | **emr.js** |
 | 科室管理 | DepartmentManagement | departments | base.js |
 | 病房管理 | WardManagement | wards | base.js |
 | 床位管理 | BedManagement | beds | base.js |

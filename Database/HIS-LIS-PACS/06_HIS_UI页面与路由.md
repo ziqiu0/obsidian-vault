@@ -34,8 +34,14 @@ tags: #HIS, #前端, #Vue3, #路由, #UI
 
 | 路由分组 | 路径 | 页面名称 | 组件 | 权限标识 |
 |----------|------|----------|------|----------|
-| **病历管理** | `emr/documents` | 电子病历 | `emr/EmrManagement.vue` | — |
-| **首页** | `/dashboard` | 仪表盘 | `Dashboard.vue` | — |
+|| **药房管理** | `pharmacy/drugs` | 药品目录 | `pharmacy/DrugCatalog.vue` | — |
+|| | `pharmacy/purchase` | 采购入库 | `pharmacy/PurchaseOrder.vue` | — |
+|| **医生工作站** | `doctor/my-patients` | 我的患者 | `doctor/MyPatients.vue` | roles: doctor |
+|| | `doctor/workstation` | 医生工作台 | `doctor/DoctorWorkstation.vue` | — |
+|| **住院管理** | `inpatient/doctor` | 住院医嘱 | `inpatient/DoctorInpatient.vue` | — |
+|| | `inpatient/nurse` | 护士工作站 | `inpatient/NurseStation.vue` | — |
+|| **病历管理** | `emr/documents` | 电子病历 | `emr/EmrManagement.vue` | — |
+|| **首页** | `/dashboard`
 | **门诊业务** | `his/patient` | 患者管理 | `his/PatientManagement.vue` | `his:patient:view` |
 | | `his/doctor` | 医生排班 | `his/DoctorManagement.vue` | `his:doctor:view` |
 | | `his/registration` | 挂号管理 | `his/RegistrationManagement.vue` | `his:registration:view` |
@@ -103,6 +109,30 @@ tags: #HIS, #前端, #Vue3, #路由, #UI
 | 医生排班 | `his/DoctorManagement.vue` | `api/his.js` | `DoctorController` |
 | 挂号管理 | `his/RegistrationManagement.vue` | `api/registration.js` | `RegistrationController` |
 
+### 💊 药房管理（2 页）
+
+| 页面 | 文件 | API 文件 | 对应后端 |
+|------|------|----------|----------|
+| 药品目录 | `pharmacy/DrugCatalog.vue` | `api/pharmacy/index.js` | `DrugCatalogController` |
+| 采购入库 | `pharmacy/PurchaseOrder.vue` | `api/pharmacy/index.js` | `DrugPurchaseOrderController` |
+
+> 另含 `pharmacy/DrugOutbound.vue`（发药页面待完善）
+
+### 👨‍⚕️ 医生工作站（2 页）
+
+| 页面 | 文件 | API 文件 | 对应后端 |
+|------|------|----------|----------|
+| 我的患者 | `doctor/MyPatients.vue` | `api/doctor.js` | `PrescriptionController` + LIS |
+| 医生工作台 | `doctor/DoctorWorkstation.vue` | `api/doctor.js` | — |
+
+### 🏨 住院管理（3 页）
+
+| 页面 | 文件 | API 文件 | 后端状态 |
+|------|------|----------|:--------:|
+| 住院登记 | `inpatient/AdmissionManagement.vue` | `api/inpatient.js` | ✅ |
+| 住院医嘱 | `inpatient/DoctorInpatient.vue` | — | ✅ |
+| 护士工作站 | `inpatient/NurseStation.vue` | — | ✅ |
+
 ### 💰 收费管理（5 页）
 
 | 页面 | 文件 | 后端状态 |
@@ -117,10 +147,10 @@ tags: #HIS, #前端, #Vue3, #路由, #UI
 
 | 页面 | 文件 | API 文件 | 后端状态 |
 |------|------|----------|:--------:|
-| 检验工作列表 | `lis/WorklistManagement.vue` | `api/lis.js` | ❌ |
-| 样本管理 | `lis/SampleManagement.vue` | `api/lis.js` | ❌ |
-| 检验项目 | `lis/TestItemManagement.vue` | `api/lis.js` | ❌ |
-| 检验报告 | `lis/TestReportManagement.vue` | `api/lis.js` | ❌ |
+| 检验工作列表 | `lis/WorklistManagement.vue` | `api/lis.js` | ✅ |
+| 样本管理 | `lis/SampleManagement.vue` | `api/lis.js` | ✅ |
+| 检验项目 | `lis/TestItemManagement.vue` | `api/lis.js` | ✅ |
+| 检验报告 | `lis/TestReportManagement.vue` | `api/lis.js` | ✅ |
 
 ### 📷 PACS 影像中心（2 页）
 
@@ -170,10 +200,14 @@ tags: #HIS, #前端, #Vue3, #路由, #UI
 | `api/his.js` | HIS通用 | 医生 CRUD |
 | `api/base.js` | 基础数据 | 科室/病房/床位 CRUD |
 | `api/inpatient.js` | 住院 | 住院登记 CRUD |
+| `api/inpatient/index.js` | 住院 | 住院登记(重构) |
 | `api/pacs.js` | 影像 | 影像检查 CRUD |
-| `api/lis.js` | 检验 | 检验相关(后端待实现) |
+| `api/lis.js` | 检验 | 检验申请/样本/项目/报告（已对接后端） |
 | `api/emr.js` | **电子病历** | 创建/查询/保存/提交审签/审核/归档 + 模板 |
 | `api/system.js` | 系统 | 用户/角色/权限/字典/参数/审计 |
+| `api/schedule.js` | 排班 | 医生排班周视图 |
+| `api/pharmacy/index.js` | **药房** | 药品CRUD/批次/采购订单/发药 |
+| `api/doctor.js` | **医生工作站** | 处方+检验申请+报告查询 |
 | `utils/request.js` | 工具 | Axios 封装 + token 拦截器 |
 | `store/user.js` | 状态 | 用户登录状态 + 权限管理 |
 
